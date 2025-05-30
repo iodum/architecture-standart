@@ -1,0 +1,36 @@
+@startuml
+top to bottom direction
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+SHOW_PERSON_OUTLINE()
+
+Person_Ext(user, "Пользователь", $sprite="person")
+Person(call, "Сотрудник кол-центра")
+Person(backDep, "Сотрудник бек-офиса депозитов")
+Person(backCred, "Сотрудник бек-офиса кредитования")
+Person(front, "Сотрудник фронт-офиса")
+
+System_Ext(sms, "СМС-шлюз")
+System(site, "Сайт")
+System(app, "Интернет-банк")
+System(abs, "АБС")
+System(callcenter, "Кол-центр")
+
+Rel(user, site, "Создание заявки на депозит")
+Rel(site, callcenter, "Создает заявку")
+BiRel_U(call, backDep, "Обработка заявки")
+Rel(call, callcenter, "Обрабатывает заявки")
+Rel(call, user, "Сообщает условия клиенту")
+BiRel_U(backDep, backCred, "Согласование ставок")
+BiRel_U(user, front, "Идентификация нового клиента")
+Rel(front, abs, "Загружает документы нового клиента")
+Rel(abs, sms, "Отправляет уведомления")
+Rel(app, sms, "Отправляет уведомления")
+Rel(app, abs, "Чтение информации о ставках, депозитах пользователя")
+Rel(site, abs, "Чтение информации о ставках, депозитах")
+Rel(backCred, abs, "Анализирует кредитные риски")
+Rel(backDep, abs, "Подтверждает условия депозита")
+Rel(user, app, "Открывает депозит")
+Rel(sms, user, "Получает уведомления")
+
+@enduml

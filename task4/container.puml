@@ -1,0 +1,27 @@
+@startuml
+top to bottom direction
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+SHOW_PERSON_OUTLINE()
+
+Person(call, "Сотрудник кол-центра")
+Person_Ext(callPart, "Сотрудник партнерского кол-центра")
+
+System_Ext(sftp, "SFTP-сервер")
+
+Container_Boundary(bank, "") {
+    System(site, "Сайт", "PHP, React.js")
+
+    Container_Boundary(abs, "АБС") {
+        Container(absClient, "Интерфейс", "Delphi", "Интерфейс пользователей")
+        ContainerDb(absDB, "База данных", "Oracle, PL-SQL", "Хранит данные, логика работы системы")
+        Rel_D(absClient, absDB, "Читает/записывает данные")
+    }
+}
+
+Rel(site, absDB, "Чтение информации о ставках, депозитах")
+Rel(absDB, sftp, "Выгружает ставки")
+Rel(call, site, "Просматривает актуальные ставки")
+Rel(callPart, sftp, "Скачивает файл со ставками")
+
+@enduml

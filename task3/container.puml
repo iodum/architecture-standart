@@ -1,0 +1,58 @@
+@startuml
+top to bottom direction
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+SHOW_PERSON_OUTLINE()
+
+Person_Ext(user, "Пользователь", $sprite="person")
+Person(call, "Сотрудник кол-центра")
+Person(backDep, "Сотрудник бек-офиса депозитов")
+Person(backCred, "Сотрудник бек-офиса кредитования")
+Person(front, "Сотрудник фронт-офиса")
+
+System_Ext(sms, "СМС-шлюз")
+
+Container_Boundary(bank, "") {
+    System(site, "Сайт", "PHP, React.js")
+    System(callcenter, "Кол-центр")
+
+    Container_Boundary(app, "Интернет-банк") {
+        Component(api, "API geteway", ".NET Framework")
+        Container_Boundary(depo, "Сервис депозитов"){
+            Component(depoServ, "Приложение депозитов", "ASP.NET, .NET Framework")
+            ContainerDb(depoDB, "База данных депозитов", "MS SQL")
+            Rel_D(depoServ, depoDB, "Читает/записывает данные")
+        }
+        Component(smsServ, "Сервис смс", ".NET Framework")
+        Container(appWeb, "Приложение", "ASP.NET, .NET Framework")
+        ContainerDb(appDB, "База данных интернет-банка", "MS SQL")
+
+        Rel_D(appWeb, appDB, "Читает/записывает данные")
+        Rel_D(depoServ, smsServ, " ")
+        Rel_D(api, depoServ, " ")
+        Rel_D(api, appWeb, " ")
+    }
+
+    Container_Boundary(abs, "АБС") {
+        Container(absClient, "Интерфейс", "Delphi", "Интерфейс пользователей")
+        ContainerDb(absDB, "База данных", "Oracle, PL-SQL", "Хранит данные, логика работы системы")
+        Rel_D(absClient, absDB, "Читает/записывает данные")
+    }
+}
+Rel(user, site, "Создание заявки на депозит")
+Rel(site, callcenter, "Создает заявку")
+BiRel_U(call, backDep, "Обработка заявки")
+Rel(call, callcenter, "Обрабатывает заявки")
+Rel(call, user, "Сообщает условия клиенту")
+BiRel_U(backDep, backCred, "Согласование ставок")
+BiRel_U(user, front, "Идентификация нового клиента")
+Rel(front, absClient, "Загружает документы нового клиента")
+Rel(smsServ, sms, "Отправляет уведомления")
+Rel(appWeb, absDB, "Читает/записывает данные")
+Rel(depoServ, absDB, "Читает/записывает данные")
+Rel(site, absDB, "Чтение информации о ставках, депозитах")
+Rel(backCred, absClient, "Анализирует кредитные риски")
+Rel(backDep, absClient, "Подтверждает условия депозита")
+Rel(user, api, "Открывает депозит")
+
+@enduml
